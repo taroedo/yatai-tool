@@ -1,128 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<title>屋台売上計算</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<style>
-  body { font-family: sans-serif; padding: 20px; max-width: 420px; margin: auto; }
-  h2 { text-align: center; }
-  .item { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
-  .name { flex: 1; }
-  .price { width: 80px; text-align: right; font-size: 16px; }
-  .controls { display: flex; align-items: center; }
-  button { font-size: 18px; padding: 5px; min-width: 40px; min-height: 40px; }
-  input[type="number"], input[type="tel"] { 
-    width: 60px; 
-    text-align: center; 
-    font-size: 18px; 
-    margin: 0 5px; 
-  }
-  .total, .change { font-size: 18px; font-weight: bold; text-align: right; margin-top: 15px; }
-  .money-input { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
-  .money-input input { width: 150px; font-size: 18px; text-align: right; }
-  .money-buttons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-  .money-buttons button { flex: 1 1 calc(33% - 10px); font-size: 18px; padding: 10px; }
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#f58220">
+  <title>屋台売上計算</title>
+  <style>
+    :root{--orange:#f58220;--orange2:#d96808;--blue:#1267a5;--green:#16834b;--red:#c83232;--ink:#20242a;--muted:#667085;--line:#d6dae0;--bg:#edf0f3;--card:#fff;--soft:#f5f7f9}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{font-size:16px;background:var(--bg)}
+    body{margin:0;padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg)}
+    button,input{font:inherit;font-size:16px}button{min-height:46px;border:0;border-radius:11px;font-weight:800;cursor:pointer;touch-action:manipulation}button:active{filter:brightness(.88);transform:scale(.985)}button:disabled{opacity:.42;cursor:not-allowed;transform:none}
+    .app{max-width:920px;margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 2px 14px}.topbar h1{margin:0;font-size:clamp(23px,5vw,34px)}.admin-open{min-width:52px;background:#e1e5e9;color:#3f4750;font-size:13px;padding:6px 10px;user-select:none}
+    .card{background:var(--card);border-radius:17px;padding:16px;margin-bottom:14px;box-shadow:0 3px 13px #00000012}.card h2{font-size:20px;margin:0 0 13px}.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.product{border:2px solid var(--line);border-radius:14px;padding:14px}.product h3{text-align:center;margin:0;font-size:21px}.unit{text-align:center;color:var(--muted);font-weight:700;margin:3px 0 10px}.qty-row{display:grid;grid-template-columns:58px 1fr 58px;gap:9px;align-items:center}.qty{font-size:38px;font-weight:900;text-align:center}.minus,.plus{color:#fff;font-size:25px}.minus{background:var(--muted)}.plus{background:var(--orange)}
+    .quick,.money{display:grid;gap:7px;margin-top:9px}.quick{grid-template-columns:repeat(5,1fr)}.money{grid-template-columns:repeat(5,1fr)}.quick button,.money button{background:#e8f1f9;color:#135988}.reset-current{width:100%;margin-top:9px;background:#fbe9e9;color:var(--red)}
+    .breakdown{background:var(--soft);border-radius:12px;padding:9px 12px;margin-bottom:12px}.break-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}.break-row[hidden]{display:none}.received{text-align:center;font-size:clamp(31px,7vw,46px);font-weight:900;margin:4px 0 12px}.money-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.undo-money{background:#e8eaed;color:#42484f}.exact{background:#fff0dd;color:#9a4a00}.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sum-box{text-align:center;background:var(--soft);border-radius:12px;padding:12px}.sum-label{color:var(--muted);font-weight:700}.sum-value{font-size:clamp(25px,5vw,36px);font-weight:900}.change{color:var(--blue)}.short{color:var(--red)}
+    .checkout{width:100%;min-height:68px;margin-top:13px;background:var(--green);color:#fff;font-size:25px}.status{min-height:23px;text-align:center;color:var(--green);font-weight:800;margin-top:8px}.sales-row{display:grid;grid-template-columns:1fr auto auto;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center}.sales-row strong:last-child{min-width:95px;text-align:right}.grand{display:flex;justify-content:space-between;gap:10px;border-top:3px solid var(--ink);padding-top:13px;margin-top:13px;font-size:24px;font-weight:900}.secondary-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.history-btn{background:var(--blue);color:#fff}.undo-sale{background:#fff0dd;color:#8b4700}
+    dialog{width:min(94vw,680px);max-height:88vh;border:0;border-radius:17px;padding:0;box-shadow:0 15px 50px #0005}dialog::backdrop{background:#0008}.modal{padding:18px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.modal-head h2{margin:0}.close{width:46px;background:#e8eaed;color:#333}.history-list{max-height:55vh;overflow:auto}.history-item{border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:8px}.history-item.cancelled{opacity:.55;text-decoration:line-through}.history-top{display:flex;justify-content:space-between;gap:10px;font-weight:800}.history-detail{color:var(--muted);margin-top:5px;font-size:14px}.empty{text-align:center;color:var(--muted);padding:25px 8px}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.admin-grid button{background:#e8f1f9;color:#135988}.admin-grid .danger{background:#fbe9e9;color:var(--red)}.hint{font-size:13px;color:var(--muted);margin:8px 0 0}.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;border-radius:99px;padding:11px 18px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:10}.toast.show{opacity:1}
+    @media(max-width:650px){.product-grid{grid-template-columns:1fr}.money{grid-template-columns:repeat(2,1fr)}.money button:first-child{grid-column:span 2}.card{padding:14px}.sales-row{grid-template-columns:1fr auto}.sales-row strong:last-child{grid-column:2}.admin-grid{grid-template-columns:1fr}}
+    @media(max-width:380px){.quick{grid-template-columns:repeat(3,1fr)}.summary,.secondary-actions{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-
-<h2>屋台売上計算</h2>
-
-<!-- 商品1 -->
-<div class="item">
-  <div class="name">焼きそば</div>
-  <div class="price">300円</div>
-  <div class="controls">
-    <button data-btn="-1" data-target="yakisoba">−</button>
-    <input type="number" id="yakisoba" value="0" min="0" readonly>
-    <button data-btn="1" data-target="yakisoba">＋</button>
-  </div>
-</div>
-
-<!-- 商品2 -->
-<div class="item">
-  <div class="name">フランクフルト</div>
-  <div class="price">200円</div>
-  <div class="controls">
-    <button data-btn="-1" data-target="frank">−</button>
-    <input type="number" id="frank" value="0" min="0" readonly>
-    <button data-btn="1" data-target="frank">＋</button>
-  </div>
-</div>
-
-<!-- 預かり金額 -->
-<div class="money-input">
-  <label for="received">預かり金額:</label>
-  <input type="tel" inputmode="numeric" pattern="[0-9]*" id="received" value="0" min="0" readonly>
-</div>
-
-<!-- 金額加算ボタン -->
-<div class="money-buttons">
-  <button data-add="10000">+10,000円</button>
-  <button data-add="5000">+5,000円</button>
-  <button data-add="1000">+1,000円</button>
-  <button data-add="500">+500円</button>
-  <button data-add="100">+100円</button>
-  <button id="resetMoney">リセット</button>
-</div>
-
-<!-- 合計とお釣り -->
-<div class="total" id="total">合計: 0 円</div>
-<div class="change" id="change">お釣り: 0 円</div>
-
+<main class="app">
+  <header class="topbar"><h1>屋台売上計算</h1><button id="adminOpen" class="admin-open" aria-label="管理者メニューを長押し">管理<br>長押し</button></header>
+  <section class="card"><h2>商品数量</h2><div class="product-grid">
+    <article class="product"><h3>焼きそば</h3><div class="unit">1個 300円</div><div class="qty-row"><button class="minus" data-product="yakisoba" data-change="-1">−</button><output id="yakisobaQty" class="qty">0</output><button class="plus" data-product="yakisoba" data-change="1">＋</button></div><div class="quick"><button data-product="yakisoba" data-change="1">+1</button><button data-product="yakisoba" data-change="2">+2</button><button data-product="yakisoba" data-change="3">+3</button><button data-product="yakisoba" data-change="5">+5</button><button data-product="yakisoba" data-change="7">+7</button></div><button class="reset-current" data-reset="yakisoba">焼きそばを0に戻す</button></article>
+    <article class="product"><h3>フランクフルト</h3><div class="unit">1本 200円</div><div class="qty-row"><button class="minus" data-product="frankfurter" data-change="-1">−</button><output id="frankfurterQty" class="qty">0</output><button class="plus" data-product="frankfurter" data-change="1">＋</button></div><div class="quick"><button data-product="frankfurter" data-change="1">+1</button><button data-product="frankfurter" data-change="2">+2</button><button data-product="frankfurter" data-change="3">+3</button><button data-product="frankfurter" data-change="5">+5</button><button data-product="frankfurter" data-change="7">+7</button></div><button class="reset-current" data-reset="frankfurter">フランクフルトを0に戻す</button></article>
+  </div></section>
+  <section class="card"><h2>注文内容</h2><div class="breakdown"><div id="yakisobaLine" class="break-row" hidden><span></span><strong></strong></div><div id="frankfurterLine" class="break-row" hidden><span></span><strong></strong></div><div id="emptyOrder" class="break-row"><span>商品を選んでください</span></div></div><h2>預かり金額</h2><div id="received" class="received">0円</div><div class="money"><button data-money="10000">+10,000円</button><button data-money="5000">+5,000円</button><button data-money="1000">+1,000円</button><button data-money="500">+500円</button><button data-money="100">+100円</button></div><div class="money-actions"><button id="undoMoney" class="undo-money">1つ戻す</button><button id="exactMoney" class="exact">ちょうど</button></div><button id="resetReceived" class="reset-current">預かり金額を0に戻す</button></section>
+  <section class="card"><h2>会計</h2><div class="summary"><div class="sum-box"><div class="sum-label">合計金額</div><div id="currentTotal" class="sum-value">0円</div></div><div class="sum-box"><div class="sum-label">お釣り</div><div id="change" class="sum-value change">0円</div></div></div><button id="checkout" class="checkout" disabled>会計する</button><div id="status" class="status" aria-live="polite"></div></section>
+  <section class="card"><h2>累計売上</h2><div class="sales-row"><strong>焼きそば</strong><span id="yakisobaTotalQty">0個</span><strong id="yakisobaTotalAmount">0円</strong></div><div class="sales-row"><strong>フランクフルト</strong><span id="frankfurterTotalQty">0本</span><strong id="frankfurterTotalAmount">0円</strong></div><div class="grand"><span>総売上金額</span><span id="grandTotal">0円</span></div><div class="secondary-actions"><button id="historyOpen" class="history-btn">会計履歴</button><button id="undoSale" class="undo-sale">直前会計を取り消す</button></div></section>
+</main>
+<dialog id="historyDialog"><div class="modal"><div class="modal-head"><h2>会計履歴</h2><button class="close" data-close="historyDialog">×</button></div><div id="historyList" class="history-list"></div></div></dialog>
+<dialog id="adminDialog"><div class="modal"><div class="modal-head"><h2>管理者メニュー</h2><button class="close" data-close="adminDialog">×</button></div><div class="admin-grid"><button id="editTotals">累計数量を修正</button><button id="exportCsv">CSVを出力</button><button id="changePin">暗証番号を変更</button><button id="clearAll" class="danger">営業データを完全削除</button></div><p class="hint">初期暗証番号：1234。CSVには取り消し済みの会計も記録されます。</p></div></dialog>
+<div id="toast" class="toast" role="status"></div>
 <script>
-const prices = { yakisoba: 300, frank: 200 };
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 数量ボタン
-    document.querySelectorAll('[data-btn]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const id = btn.dataset.target;
-            const delta = parseInt(btn.dataset.btn, 10);
-            changeQty(id, delta);
-        });
-    });
-
-    // 金額加算ボタン
-    document.querySelectorAll('[data-add]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const addValue = parseInt(btn.dataset.add, 10);
-            const input = document.getElementById('received');
-            let current = parseInt(input.value) || 0;
-            input.value = current + addValue;
-            calculateTotal();
-        });
-    });
-
-    // リセットボタン
-    document.getElementById('resetMoney').addEventListener('click', () => {
-        document.getElementById('received').value = 0;
-        calculateTotal();
-    });
-});
-
-function changeQty(id, delta) {
-    const input = document.getElementById(id);
-    let value = parseInt(input.value) || 0;
-    value = Math.max(0, value + delta);
-    input.value = value;
-    calculateTotal();
-}
-
-function calculateTotal() {
-    let total = 0;
-    for (let key in prices) {
-        const qty = parseInt(document.getElementById(key).value) || 0;
-        total += prices[key] * qty;
-    }
-    document.getElementById('total').textContent = `合計: ${total.toLocaleString()} 円`;
-
-    const received = parseInt(document.getElementById('received').value) || 0;
-    const change = Math.max(0, received - total);
-    document.getElementById('change').textContent = `お釣り: ${change.toLocaleString()} 円`;
-}
+"use strict";
+const PRODUCTS={yakisoba:{name:"焼きそば",price:300,unit:"個"},frankfurter:{name:"フランクフルト",price:200,unit:"本"}};
+const STORAGE_KEY="yatai-sales-app-v2";
+const initialState=()=>({current:{yakisoba:0,frankfurter:0,received:0,moneyStack:[]},totals:{yakisoba:0,frankfurter:0},history:[],pin:"1234"});
+let state=load();
+const $=id=>document.getElementById(id),yen=n=>`${Number(n).toLocaleString("ja-JP")}円`,totalNow=()=>state.current.yakisoba*300+state.current.frankfurter*200;
+function load(){try{const x=JSON.parse(localStorage.getItem(STORAGE_KEY));return x&&x.current&&x.totals&&Array.isArray(x.history)?{...initialState(),...x,current:{...initialState().current,...x.current}}:initialState()}catch{return initialState()}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function activeTotals(){return state.history.filter(x=>!x.cancelled).reduce((a,x)=>({yakisoba:a.yakisoba+x.yakisoba,frankfurter:a.frankfurter+x.frankfurter}),{yakisoba:0,frankfurter:0})}
+function syncTotals(){state.totals=activeTotals()}
+function render(){syncTotals();const t=totalNow(),short=Math.max(t-state.current.received,0),change=Math.max(state.current.received-t,0);$("yakisobaQty").textContent=state.current.yakisoba;$("frankfurterQty").textContent=state.current.frankfurter;$("received").textContent=yen(state.current.received);$("currentTotal").textContent=yen(t);$("change").textContent=short?`不足 ${yen(short)}`:yen(change);$("change").classList.toggle("short",short>0);$("checkout").disabled=t===0||state.current.received<t;$("undoMoney").disabled=!state.current.moneyStack.length;$("exactMoney").disabled=t===0;$("yakisobaTotalQty").textContent=`${state.totals.yakisoba.toLocaleString()}個`;$("frankfurterTotalQty").textContent=`${state.totals.frankfurter.toLocaleString()}本`;$("yakisobaTotalAmount").textContent=yen(state.totals.yakisoba*300);$("frankfurterTotalAmount").textContent=yen(state.totals.frankfurter*200);$("grandTotal").textContent=yen(state.totals.yakisoba*300+state.totals.frankfurter*200);$("undoSale").disabled=!state.history.some(x=>!x.cancelled);renderLine("yakisoba");renderLine("frankfurter");$("emptyOrder").hidden=t>0;save()}
+function renderLine(key){const el=$(key+"Line"),q=state.current[key],p=PRODUCTS[key];el.hidden=!q;el.children[0].textContent=`${p.name}：${q}${p.unit} × ${yen(p.price)}`;el.children[1].textContent=yen(q*p.price)}
+function toast(msg){const el=$("toast");el.textContent=msg;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2200)}
+document.querySelectorAll("[data-product]").forEach(b=>b.onclick=()=>{const k=b.dataset.product;state.current[k]=Math.max(0,state.current[k]+Number(b.dataset.change));render()});
+document.querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>{state.current[b.dataset.reset]=0;render()});
+document.querySelectorAll("[data-money]").forEach(b=>b.onclick=()=>{const n=Number(b.dataset.money);state.current.received+=n;state.current.moneyStack.push(n);render()});
+$("undoMoney").onclick=()=>{const n=state.current.moneyStack.pop();if(n!=null)state.current.received=Math.max(0,state.current.received-n);render()};
+$("exactMoney").onclick=()=>{state.current.received=totalNow();state.current.moneyStack=[];render()};
+$("resetReceived").onclick=()=>{state.current.received=0;state.current.moneyStack=[];render()};
+$("checkout").onclick=()=>{const amount=totalNow();if(!amount||state.current.received<amount)return;state.history.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),time:new Date().toISOString(),yakisoba:state.current.yakisoba,frankfurter:state.current.frankfurter,total:amount,received:state.current.received,change:state.current.received-amount,cancelled:false});state.current={yakisoba:0,frankfurter:0,received:0,moneyStack:[]};render();$("status").textContent=`会計完了：${yen(amount)}`;setTimeout(()=>$("status").textContent="",2500)};
+$("undoSale").onclick=()=>{const sale=[...state.history].reverse().find(x=>!x.cancelled);if(!sale)return;if(!confirm(`直前の会計（${yen(sale.total)}）を取り消しますか？`))return;sale.cancelled=true;sale.cancelledAt=new Date().toISOString();render();toast("直前の会計を取り消しました")};
+function renderHistory(){const list=$("historyList"),items=[...state.history].reverse();list.innerHTML="";if(!items.length){list.innerHTML='<div class="empty">会計履歴はありません</div>';return}items.forEach((x,i)=>{const d=document.createElement("div");d.className="history-item"+(x.cancelled?" cancelled":"");const time=new Date(x.time).toLocaleString("ja-JP");d.innerHTML=`<div class="history-top"><span>${x.cancelled?"取消済み":"会計"} ${state.history.length-i}</span><span>${yen(x.total)}</span></div><div class="history-detail">${time}<br>焼きそば ${x.yakisoba}個／フランクフルト ${x.frankfurter}本<br>預かり ${yen(x.received)}・お釣り ${yen(x.change)}</div>`;list.append(d)})}
+$("historyOpen").onclick=()=>{renderHistory();$("historyDialog").showModal()};document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).close());
+let holdTimer,held=false;function startHold(e){e.preventDefault();held=false;holdTimer=setTimeout(()=>{held=true;const pin=prompt("管理者暗証番号を入力してください");if(pin===state.pin)$("adminDialog").showModal();else if(pin!==null)alert("暗証番号が違います。")},900)}function endHold(){clearTimeout(holdTimer)}$("adminOpen").addEventListener("pointerdown",startHold);["pointerup","pointerleave","pointercancel"].forEach(x=>$("adminOpen").addEventListener(x,endHold));$("adminOpen").onclick=e=>{if(!held)toast("管理ボタンを1秒長押ししてください");held=false};
+function nonNegativePrompt(label,current){const value=prompt(label,current);if(value===null)return null;const n=Number(value.replace(/,/g,""));if(!Number.isInteger(n)||n<0){alert("0以上の整数を入力してください。");return undefined}return n}
+$("editTotals").onclick=()=>{const y=nonNegativePrompt("累計の焼きそば数量",state.totals.yakisoba);if(y==null)return;const f=nonNegativePrompt("累計のフランクフルト数量",state.totals.frankfurter);if(f==null)return;state.history.push({id:String(Date.now()),time:new Date().toISOString(),yakisoba:y-state.totals.yakisoba,frankfurter:f-state.totals.frankfurter,total:(y-state.totals.yakisoba)*300+(f-state.totals.frankfurter)*200,received:0,change:0,cancelled:false,adjustment:true});render();$("adminDialog").close();toast("累計数量を修正しました")};
+$("changePin").onclick=()=>{const p=prompt("新しい暗証番号（4～8桁）");if(p===null)return;if(!/^\d{4,8}$/.test(p)){alert("4～8桁の数字を入力してください。");return}state.pin=p;save();toast("暗証番号を変更しました")};
+$("exportCsv").onclick=()=>{if(!state.history.length){alert("出力する会計履歴がありません。");return}const rows=[["No.","会計日時","焼きそば数量","フランクフルト数量","合計金額","預かり金額","お釣り","状態","種別"],...state.history.map((x,i)=>[i+1,new Date(x.time).toLocaleString("ja-JP"),x.yakisoba,x.frankfurter,x.total,x.received,x.change,x.cancelled?"取消済み":"有効",x.adjustment?"累計修正":"会計"])];const csv="\ufeff"+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`屋台売上_${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast("CSVを出力しました")};
+$("clearAll").onclick=()=>{if(!confirm("営業データをすべて削除しますか？"))return;const phrase=prompt("最終確認です。「削除」と入力してください。");if(phrase!=="削除"){if(phrase!==null)alert("削除を中止しました。");return}const pin=state.pin;state=initialState();state.pin=pin;localStorage.removeItem(STORAGE_KEY);render();$("adminDialog").close();toast("営業データを削除しました")};
+render();
 </script>
-
 </body>
 </html>
