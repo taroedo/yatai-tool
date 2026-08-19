@@ -3,21 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <title>屋台売上計算</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   body { font-family: sans-serif; padding: 20px; max-width: 420px; margin: auto; }
   h2 { text-align: center; }
   .item { display: flex; justify-content: space-between; align-items: center; margin: 15px 0; }
   .name { flex: 1; }
-  .price { width: 80px; text-align: right; }
+  .price { width: 80px; text-align: right; font-size: 16px; }
   .controls { display: flex; align-items: center; }
-  button { font-size: 1.2em; padding: 5px; }
-  input[type="number"], input[type="tel"] { width: 60px; text-align: center; font-size: 1.2em; margin: 0 5px; }
-  .total, .change { font-size: 1.4em; font-weight: bold; text-align: right; margin-top: 15px; }
-  .money-input { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-  .money-input input { width: 150px; font-size: 1.2em; text-align: right; }
+  button { font-size: 18px; padding: 5px; min-width: 40px; min-height: 40px; }
+  input[type="number"], input[type="tel"] { 
+    width: 60px; 
+    text-align: center; 
+    font-size: 18px; 
+    margin: 0 5px; 
+  }
+  .total, .change { font-size: 18px; font-weight: bold; text-align: right; margin-top: 15px; }
+  .money-input { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+  .money-input input { width: 150px; font-size: 18px; text-align: right; }
   .money-buttons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-  .money-buttons button { flex: 1 1 calc(33% - 10px); font-size: 1.1em; padding: 10px; }
+  .money-buttons button { flex: 1 1 calc(33% - 10px); font-size: 18px; padding: 10px; }
 </style>
 </head>
 <body>
@@ -49,23 +54,16 @@
 <!-- 預かり金額 -->
 <div class="money-input">
   <label for="received">預かり金額:</label>
-  <input 
-    type="tel" 
-    inputmode="numeric" 
-    pattern="[0-9]*" 
-    id="received" 
-    value="0" 
-    min="0" 
-    readonly>
+  <input type="tel" inputmode="numeric" pattern="[0-9]*" id="received" value="0" min="0" readonly>
 </div>
 
 <!-- 金額加算ボタン -->
 <div class="money-buttons">
-  <button data-add="1000">+1000円</button>
+  <button data-add="10000">+10,000円</button>
+  <button data-add="5000">+5,000円</button>
+  <button data-add="1000">+1,000円</button>
   <button data-add="500">+500円</button>
   <button data-add="100">+100円</button>
-  <button data-add="50">+50円</button>
-  <button data-add="10">+10円</button>
   <button id="resetMoney">リセット</button>
 </div>
 
