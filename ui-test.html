@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#f58220">
+  <title>屋台レジ UI検証</title>
+  <style>html{visibility:hidden}html.portal-authorized{visibility:visible}</style>
+  <script src="shared/portal-config.js?v=1"></script>
+  <script src="shared/access-guard.js?v=1" data-portal="index.html"></script>
+  <style>
+    :root{--orange:#f58220;--green:#16834b;--blue:#1267a5;--red:#c83232;--ink:#20242a;--muted:#667085;--line:#d6dae0;--bg:#edf0f3;--card:#fff;--soft:#f5f7f9}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{font-size:16px;background:var(--bg)}
+    body{margin:0;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--bg)}
+    button,input,select{font:inherit;font-size:16px}
+    button{min-height:44px;border:0;border-radius:10px;font-weight:800;cursor:pointer;touch-action:manipulation}
+    button:active{filter:brightness(.9);transform:scale(.985)}
+    button:disabled{opacity:.4;transform:none}
+    .app{max-width:960px;margin:auto}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 2px 8px}
+    .top h1{font-size:22px;margin:0}
+    .top-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border-radius:10px;padding:5px 10px;background:#e8eaed;color:#333;text-decoration:none;font-weight:800}
+    .badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+    .badge{border-radius:99px;padding:3px 8px;background:#fff0dd;color:#884600;font-size:12px;font-weight:900}
+    .badge.test{background:#e8f1f9;color:#135988}
+    .badge.local{background:#dff5e8;color:#086c36}
+    .card{background:var(--card);border-radius:14px;padding:11px;margin-bottom:9px;box-shadow:0 2px 10px #00000010}
+    .card h2{font-size:17px;margin:0 0 8px}
+    .product-grid,.summary,.two-col{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+    .form select{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:8px;margin:4px 0 0;background:#fff}
+    .form-note{color:var(--muted);font-size:12px;margin:7px 2px 0}
+    .product{border:2px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
+    .product h3{font-size:17px;margin:0}
+    .unit{font-size:13px;color:var(--muted);font-weight:700;margin:1px 0 5px}
+    .qty-row{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:4px}
+    .qty{font-size:32px;font-weight:900}
+    .minus,.plus{min-height:52px;color:#fff;font-size:24px}
+    .minus{background:var(--muted)}
+    .plus{background:var(--orange)}
+    .received{text-align:center;font-size:30px;font-weight:900;margin-bottom:6px}
+    .money{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+    .money button{background:#e8f1f9;color:#135988}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+    .soft{background:#e8eaed;color:#40464d}
+    .exact{background:#fff0dd;color:#8b4700}
+    .summary{margin-top:8px}
+    .sum-box{background:var(--soft);border-radius:10px;padding:7px;text-align:center}
+    .sum-box.compact{margin-top:7px;display:flex;align-items:center;justify-content:space-between;padding:5px 12px}
+    .sum-label{font-size:13px;color:var(--muted);font-weight:700}
+    .sum-value{font-size:25px;font-weight:900}
+    .short{color:var(--red)}
+    .checkout{width:100%;min-height:58px;background:var(--green);color:#fff;font-size:23px;margin-top:7px}
+    .secondary{width:100%;background:#fff0dd;color:#824100;margin-top:7px}
+    .notice{text-align:center;font-size:13px;font-weight:800;min-height:18px;margin-top:3px;color:var(--green)}
+    dialog{width:min(94vw,520px);border:0;border-radius:15px;padding:0;box-shadow:0 15px 50px #0005}
+    dialog::backdrop{background:#0008}
+    .modal{padding:17px}
+    .modal h2{margin-top:0}
+    .modal label{display:block;margin-top:10px}
+    .modal input,.modal select{width:100%;min-height:46px;border:1px solid var(--line);border-radius:9px;padding:8px;margin-top:4px;background:#fff}
+    .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+    .cancel{background:#e8eaed}
+    .danger{background:var(--red);color:#fff}
+    @media(min-width:720px){.top h1{font-size:30px}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div>
+      <h1>屋台売上計算</h1>
+      <div class="badges">
+        <span id="registerBadge" class="badge">レジ1</span>
+        <span id="cashierBadge" class="badge">会計担当1</span>
+        <span class="badge test">UI検証用</span>
+        <span class="badge local">ローカル動作</span>
+      </div>
+    </div>
+    <a class="top-link" href="index.html">トップ</a>
+  </header>
+
+  <section class="card form">
+    <div class="two-col">
+      <label>レジ
+        <select id="registerId">
+          <option value="R1">レジ1</option>
+          <option value="R2">レジ2</option>
+        </select>
+      </label>
+      <label>担当者
+        <select id="cashierId">
+          <option value="C1">会計担当1</option>
+          <option value="C2">会計担当2</option>
+        </select>
+      </label>
+    </div>
+    <p class="form-note">このページの操作内容は管理画面や他の端末には送信されません。再読み込みすると初期化されます。</p>
+  </section>
+
+  <section class="card">
+    <h2>商品数量</h2>
+    <div class="product-grid">
+      <article class="product">
+        <h3>焼きそば</h3>
+        <div class="unit">1個 300円</div>
+        <div class="qty-row">
+          <button class="minus" data-product="yakisoba" data-delta="-1" aria-label="焼きそばを1個減らす">−</button>
+          <output id="yakisobaQty" class="qty">0</output>
+          <button class="plus" data-product="yakisoba" data-delta="1" aria-label="焼きそばを1個増やす">＋</button>
+        </div>
+      </article>
+      <article class="product">
+        <h3>フランク</h3>
+        <div class="unit">1本 200円</div>
+        <div class="qty-row">
+          <button class="minus" data-product="frankfurter" data-delta="-1" aria-label="フランクを1本減らす">−</button>
+          <output id="frankfurterQty" class="qty">0</output>
+          <button class="plus" data-product="frankfurter" data-delta="1" aria-label="フランクを1本増やす">＋</button>
+        </div>
+      </article>
+    </div>
+    <div class="sum-box compact">
+      <div class="sum-label">合計金額</div>
+      <div id="total" class="sum-value">0円</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>預かり金額</h2>
+    <div id="received" class="received">0円</div>
+    <div class="money">
+      <button data-money="10000">+10,000円</button>
+      <button data-money="5000">+5,000円</button>
+      <button data-money="1000">+1,000円</button>
+      <button data-money="500">+500円</button>
+      <button data-money="100">+100円</button>
+    </div>
+    <div class="actions">
+      <button id="undoMoney" class="soft">1つ戻す</button>
+      <button id="exactMoney" class="exact">ちょうど</button>
+    </div>
+    <div class="sum-box compact">
+      <div class="sum-label">お釣り</div>
+      <div id="change" class="sum-value">0円</div>
+    </div>
+    <button id="checkout" class="checkout" disabled>会計する</button>
+    <div id="notice" class="notice" aria-live="polite"></div>
+  </section>
+
+  <section class="card">
+    <h2>このページでの累計</h2>
+    <div class="summary">
+      <div class="sum-box">
+        <div class="sum-label">販売数</div>
+        <div id="registerItems" class="sum-value">0点</div>
+      </div>
+      <div class="sum-box">
+        <div class="sum-label">売上</div>
+        <div id="registerSales" class="sum-value">0円</div>
+      </div>
+    </div>
+    <button id="cancelLast" class="secondary" disabled>直前の会計を取り消す</button>
+  </section>
+</main>
+
+<dialog id="cancelDialog">
+  <form method="dialog" class="modal">
+    <h2>直前会計の取り消し</h2>
+    <p id="cancelTarget"></p>
+    <label>理由
+      <select id="cancelReason">
+        <option>数量入力ミス</option>
+        <option>預かり金額入力ミス</option>
+        <option>注文キャンセル</option>
+        <option>商品変更</option>
+        <option>その他</option>
+      </select>
+    </label>
+    <label>補足（任意）
+      <input id="cancelNote" maxlength="100">
+    </label>
+    <div class="modal-actions">
+      <button value="cancel" class="cancel">戻る</button>
+      <button id="confirmCancel" value="default" class="danger">取り消す</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  "use strict";
+  const PRICES={yakisoba:300,frankfurter:200};
+  const $=id=>document.getElementById(id);
+  const yen=value=>`${Number(value).toLocaleString("ja-JP")}円`;
+  let current={yakisoba:0,frankfurter:0,received:0,moneyStack:[]};
+  let sales=[];
+  let sequence=0;
+  let cancelCandidate=null;
+
+  function total(){return current.yakisoba*PRICES.yakisoba+current.frankfurter*PRICES.frankfurter}
+  function validSales(){return sales.filter(sale=>!sale.cancelled)}
+  function selectedText(id){return $(id).selectedOptions[0].textContent}
+
+  function render(){
+    const amount=total();
+    const shortage=Math.max(amount-current.received,0);
+    const change=Math.max(current.received-amount,0);
+    const active=validSales();
+    const itemCount=active.reduce((sum,sale)=>sum+sale.yakisobaQty+sale.frankfurterQty,0);
+    const salesAmount=active.reduce((sum,sale)=>sum+sale.total,0);
+
+    $("yakisobaQty").textContent=current.yakisoba;
+    $("frankfurterQty").textContent=current.frankfurter;
+    $("received").textContent=yen(current.received);
+    $("total").textContent=yen(amount);
+    $("change").textContent=shortage?`不足 ${yen(shortage)}`:yen(change);
+    $("change").classList.toggle("short",shortage>0);
+    $("checkout").disabled=!amount||shortage>0;
+    $("undoMoney").disabled=!current.moneyStack.length;
+    $("exactMoney").disabled=!amount;
+    $("registerItems").textContent=`${itemCount}点`;
+    $("registerSales").textContent=yen(salesAmount);
+    $("cancelLast").disabled=!active.length;
+    $("registerBadge").textContent=selectedText("registerId");
+    $("cashierBadge").textContent=selectedText("cashierId");
+  }
+
+  document.querySelectorAll("[data-product]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const product=button.dataset.product;
+      current[product]=Math.max(0,current[product]+Number(button.dataset.delta));
+      render();
+    });
+  });
+
+  document.querySelectorAll("[data-money]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const value=Number(button.dataset.money);
+      current.received+=value;
+      current.moneyStack.push(value);
+      render();
+    });
+  });
+
+  [$("registerId"),$("cashierId")].forEach(select=>select.addEventListener("change",render));
+
+  $("undoMoney").addEventListener("click",()=>{
+    current.received=Math.max(0,current.received-(current.moneyStack.pop()||0));
+    render();
+  });
+
+  $("exactMoney").addEventListener("click",()=>{
+    current.received=total();
+    current.moneyStack=[];
+    render();
+  });
+
+  $("checkout").addEventListener("click",()=>{
+    const amount=total();
+    if(!amount||current.received<amount)return;
+    sequence+=1;
+    const sale={
+      receiptNo:`TEST-${$("registerId").value}-${String(sequence).padStart(4,"0")}`,
+      registerId:$("registerId").value,
+      cashierId:$("cashierId").value,
+      yakisobaQty:current.yakisoba,
+      frankfurterQty:current.frankfurter,
+      total:amount,
+      received:current.received,
+      change:current.received-amount,
+      cancelled:false
+    };
+    sales.push(sale);
+    current={yakisoba:0,frankfurter:0,received:0,moneyStack:[]};
+    $("notice").textContent=`${sale.receiptNo} 会計完了`;
+    window.setTimeout(()=>{$("notice").textContent=""},2500);
+    render();
+  });
+
+  $("cancelLast").addEventListener("click",()=>{
+    cancelCandidate=[...validSales()].reverse()[0];
+    if(!cancelCandidate)return;
+    $("cancelTarget").textContent=`${cancelCandidate.receiptNo}／${yen(cancelCandidate.total)}`;
+    $("cancelReason").selectedIndex=0;
+    $("cancelNote").value="";
+    $("cancelDialog").showModal();
+  });
+
+  $("confirmCancel").addEventListener("click",event=>{
+    event.preventDefault();
+    if(!cancelCandidate)return;
+    cancelCandidate.cancelled=true;
+    cancelCandidate.cancelReason=$("cancelReason").value;
+    cancelCandidate.cancelNote=$("cancelNote").value.trim();
+    $("cancelDialog").close();
+    $("notice").textContent=`${cancelCandidate.receiptNo} を取り消しました`;
+    cancelCandidate=null;
+    window.setTimeout(()=>{$("notice").textContent=""},2500);
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

@@ -1,81 +1,101 @@
-# 屋台売上計算アプリ（2台・2日間・Firebase対応）
+# 篠四 イベント会計ポータル
 
-GitHub Pagesで画面を公開し、Firebase Realtime Databaseでレジ1・レジ2の取引を同期する構成です。
+GitHub Pagesのトップページから共通アクセスコードを入力し、イベント別のレジ画面・管理画面・UI検証ページを開く構成です。
 
-## ファイル
+## 初期コード
 
-- `register.html`：レジ端末用
-- `admin.html`：管理・リアルタイム監視用
-- `firebase-config.js`：Firebase固有設定
-- `database.rules.json`：Realtime Databaseのセキュリティルール
-- `register.js` / `admin.js` / `common.js` / `styles.css`：アプリ本体
+- ポータルのアクセスコード：`6482`
+- 盆踊り管理・監視画面の管理PIN：`4826`
 
-## 1. Firebaseの準備（Authentication不要）
+どちらも静的JavaScript内にある簡易コードです。本格的な認証ではなく、関係者以外の誤操作を減らすために使用します。
 
-1. Firebase Consoleでプロジェクトを作成します。
-2. Webアプリを追加します。
-3. Realtime Databaseを作成します。ロケーションに合わせて`databaseURL`を確認してください。
-4. `firebase-config.js`をFirebase Consoleに表示された設定値へ置き換えます。
-5. 同じファイルの`eventId`を20文字以上の推測されにくい文字列へ変更します。
-6. `adminPin`を任意の4～8桁へ変更します。
-7. Realtime Databaseの「ルール」へ`database.rules.json`の内容を貼り付け、公開します。
+## フォルダー構成
 
-## 2. 簡易アクセス制御
+```text
+index.html                  共通ログイン・イベント選択
+register.html               旧レジURLから盆踊りレジへ移動
+admin.html                  旧管理URLから盆踊り管理へ移動
+ui-test.html                Firebaseへ送信しないUI検証ページ
+database.rules.json         Firebase Realtime Databaseルール
 
-Firebase Authenticationは使用しません。レジ画面はURLを開くだけで使え、管理画面は`firebase-config.js`に設定した管理PINで開きます。
+shared/
+  portal-config.js          アクセスコードと保持時間
+  portal.js                 ポータル画面の処理
+  access-guard.js           各ページの入口確認
+  portal.css                ポータル共通デザイン
 
-`eventId`はデータ保存先を分離する合言葉に相当します。例の値をそのまま使わず、英数字とハイフンで20文字以上の推測されにくい値を設定してください。
+bonodori/
+  register.html             盆踊りレジ
+  admin.html                盆踊り管理・監視
+  firebase-config.js        Firebase・年度・管理PIN設定
+  register.js / admin.js / common.js / styles.css
 
-```js
-export const eventId = "shin4-fes-2026-k8m2x7p4";
-export const adminPin = "4826";
+autumn/
+  index.html                オータムフェス準備ページ
 ```
 
-管理PINはブラウザへ配信されるJavaScript内に含まれるため、本格的な秘密情報ではありません。誤操作防止用の簡易PINとして扱ってください。
+## GitHub Pagesへの更新
 
-## 3. GitHub Pagesへの配置
+1. ZIPを展開します。
+2. `yatai-event-portal`フォルダーの**中身すべて**をGitHubリポジトリの最上位へアップロードします。
+3. 同名ファイルの上書きを確認してコミットします。
+4. GitHub PagesのトップURLを開きます。
 
-このフォルダー内のファイルをGitHubリポジトリへアップロードし、GitHub Pagesを有効にします。
+例：`https://taroedo.github.io/yatai-tool/?v=1`
 
-例：`https://ユーザー名.github.io/リポジトリ名/register.html`
+`bonodori`・`autumn`・`shared`のフォルダー構造を維持してください。ZIPファイル自体をGitHubへ置いても、サイトは更新されません。
 
-レジ1・レジ2では`register.html`を開き、それぞれ「レジ1」「レジ2」を選択します。ログインはありません。管理端末では`admin.html`を開き、管理PINを入力します。
+## 入口コードの変更
 
-## 4. 当日の流れ
+`shared/portal-config.js`を編集します。
 
-1. 管理画面で「1日目」または「2日目」と営業日付を選び、営業を開始します。
-2. 各レジでレジ名と「会計担当1／会計担当2」を選びます。
-3. 会計を登録します。取消は元会計を削除せず、理由付きの取消取引として追加されます。
-4. 管理画面で2台合計、担当別件数、取消、接続状態を監視します。
-5. 営業終了時に全レジCSVを出力します。
-6. 開始釣り銭、実際の現金、準備数、残数を入力して営業を締めます。
-7. 2日目も同じ手順で新しいセッションを開始します。
+```js
+window.YATAI_PORTAL_CONFIG = Object.freeze({
+  accessCode: "6482",
+  storageKey: "shino4-yatai-portal-access-v1",
+  accessHours: 12
+});
+```
 
-## オフライン動作
+入口通過後は同じブラウザに12時間保存されます。「ログアウト」を押すとすぐに解除されます。
 
-会計はまずブラウザ内の送信待ちリストへ保存されます。通信が戻ると同じIDでFirebaseへ再送するため、再送による二重登録を防ぎます。画面上の「未送信」が0件になったことを、担当交代時と営業終了時に確認してください。
+## 盆踊りシステム
 
-ブラウザの閲覧データを削除すると未送信データも失われます。未送信がある状態では端末やブラウザを変更しないでください。
+現在のFirebaseプロジェクト、イベントID、管理PINを`bonodori/firebase-config.js`へ設定済みです。既存の盆踊りデータ保存先を引き続き使用します。
 
-## セキュリティ上の重要事項
+- レジ：`/bonodori/register.html`
+- 管理・監視：`/bonodori/admin.html`
+- 旧URL `/register.html` と `/admin.html` は、新URLへ自動移動します。
 
-- サービスアカウント秘密鍵やAdmin SDKの秘密鍵をGitHubへ置かないでください。
-- FirebaseのWeb設定値、イベントID、管理PINはブラウザから確認できます。本格的な認証情報として扱わないでください。
-- `database.rules.json`を必ず適用してください。テストモードのまま使用しないでください。
-- レジ端末は取引の新規追加のみ可能で、既存取引の更新・削除はできません。
-- 取消は新しい取消取引として記録されます。
-- 管理画面URLと管理PINは必要な担当者だけに共有してください。
-- 本番前にレジ2台と管理端末で、会計・取消・オフライン復帰・CSV・締め処理を通しで確認してください。
+Firebaseのルールは既存の`database.rules.json`を継続して使用できます。
 
-### この簡易方式の限界
+## UI検証ページ
 
-- GitHub Pagesのソースを確認できる人はイベントIDと管理PINを確認できます。
-- イベントIDを知る人は当該イベントデータを読み取れる可能性があります。
-- 管理PINは画面上の誤操作防止であり、Firebaseへの直接操作を防ぐものではありません。
-- 2日間の小規模イベント向けです。長期運用や金銭的リスクが高い用途ではAuthentication版を使用してください。
+`ui-test.html`はFirebaseを読み込まず、データをページ内変数だけで管理します。
 
-## 制約
+- 商品数量、合計、預かり金、お釣りの確認
+- 会計と直前取消の確認
+- 管理画面や別端末への送信なし
+- 再読み込みでデータ初期化
 
-- 会計番号は各端末のブラウザ内で採番します。ブラウザデータを消すと番号が最初からになる可能性がありますが、データベース上の取引IDは一意なので二重登録にはなりません。
-- FirebaseのWeb SDKをCDNから読み込むため、初回表示時にはインターネット接続が必要です。
-- オフライン送信待ちは同一ブラウザ内に保存されます。完全なオフライン対応PWAではありません。
+## オータムフェスの追加時
+
+販売商品、単価、開催日数が決まったら、`autumn`フォルダーへレジ・管理ファイルを追加します。Firebaseでは盆踊りと異なるイベントIDを設定し、データを分離します。
+
+例：
+
+```text
+events/
+  shino4-bonodori-2026-xxxxxxxx/
+  shino4-autumn-2026-xxxxxxxx/
+```
+
+翌年は新しいイベントIDを作ることで、前年データを残したまま使用できます。
+
+## セキュリティ上の注意
+
+- GitHub Pagesだけでは、ページやコードを完全に非公開にはできません。
+- ポータルコードと管理PINは、誤操作防止用の簡易機能です。
+- Firebase Authenticationは使用していません。
+- Firebaseへサービスアカウント秘密鍵やAdmin SDKの秘密鍵を置かないでください。
+- 本番前にレジ2台と管理端末で、会計・取消・CSV・営業締めを通しで確認してください。
