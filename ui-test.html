@@ -33,16 +33,18 @@
     .product{border:2px solid var(--line);border-radius:12px;padding:8px 6px;text-align:center}
     .product h3{font-size:17px;margin:0}
     .unit{font-size:13px;color:var(--muted);font-weight:700;margin:1px 0 5px}
-    .qty-row{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:4px}
+    .qty-row{display:grid;grid-template-columns:40px minmax(34px,1fr) 58px;align-items:center;gap:5px}
     .qty{font-size:32px;font-weight:900}
-    .minus,.plus{min-height:52px;color:#fff;font-size:24px}
-    .minus{background:var(--muted)}
-    .plus{background:var(--orange)}
-    .received{text-align:center;font-size:30px;font-weight:900;margin-bottom:6px}
+    .minus,.plus{color:#fff}
+    .minus{min-height:44px;background:var(--muted);font-size:21px}
+    .plus{min-height:56px;background:var(--orange);font-size:28px}
+    .received{text-align:right;font-size:30px;font-weight:900;margin-bottom:6px;padding-right:12px}
     .money{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
-    .money button{background:#e8f1f9;color:#135988}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+    .money button{min-height:52px;padding:6px 3px;background:#e8f1f9;color:#135988;white-space:nowrap}
+    .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}
+    .actions button{min-height:48px;padding:5px 3px;font-size:15px}
     .soft{background:#e8eaed;color:#40464d}
+    .clear{background:#fde3e3;color:#a32020}
     .exact{background:#fff0dd;color:#8b4700}
     .summary{margin-top:8px}
     .sum-box{background:var(--soft);border-radius:10px;padding:7px;text-align:center}
@@ -50,7 +52,7 @@
     .sum-label{font-size:13px;color:var(--muted);font-weight:700}
     .sum-value{font-size:25px;font-weight:900}
     .short{color:var(--red)}
-    .checkout{width:100%;min-height:58px;background:var(--green);color:#fff;font-size:23px;margin-top:7px}
+    .checkout{width:100%;min-height:58px;background:var(--green);color:#fff;font-size:23px;margin-top:10px}
     .secondary{width:100%;background:#fff0dd;color:#824100;margin-top:7px}
     .notice{text-align:center;font-size:13px;font-weight:800;min-height:18px;margin-top:3px;color:var(--green)}
     dialog{width:min(94vw,520px);border:0;border-radius:15px;padding:0;box-shadow:0 15px 50px #0005}
@@ -138,6 +140,7 @@
     </div>
     <div class="actions">
       <button id="undoMoney" class="soft">1つ戻す</button>
+      <button id="clearMoney" class="clear" aria-label="預かり金額をクリア">クリア</button>
       <button id="exactMoney" class="exact">ちょうど</button>
     </div>
     <div class="sum-box compact">
@@ -217,6 +220,7 @@
     $("change").classList.toggle("short",shortage>0);
     $("checkout").disabled=!amount||shortage>0;
     $("undoMoney").disabled=!current.moneyStack.length;
+    $("clearMoney").disabled=!current.received;
     $("exactMoney").disabled=!amount;
     $("registerItems").textContent=`${itemCount}点`;
     $("registerSales").textContent=yen(salesAmount);
@@ -246,6 +250,12 @@
 
   $("undoMoney").addEventListener("click",()=>{
     current.received=Math.max(0,current.received-(current.moneyStack.pop()||0));
+    render();
+  });
+
+  $("clearMoney").addEventListener("click",()=>{
+    current.received=0;
+    current.moneyStack=[];
     render();
   });
 
