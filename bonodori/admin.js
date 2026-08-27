@@ -46,7 +46,8 @@ function render() {
     ? `${currentSession.businessDay}日目 ${currentSession.status === "open" ? "営業中" : "終了"}`
     : "営業前";
   $("startControls").classList.toggle("hidden", currentSession?.status === "open");
-  $("openControls").classList.toggle("hidden", currentSession?.status !== "open");
+  $("openClose").classList.toggle("hidden", currentSession?.status !== "open");
+  $("exportCsv").disabled = Object.keys(transactions).length === 0;
   $("totalSales").textContent = yen(sum(sales, "total"));
   $("saleCount").textContent = `${sales.length}件`;
   $("cancelCount").textContent = `${cancels.length}件`;
@@ -154,9 +155,11 @@ $("startSession").onclick = async () => {
 };
 
 $("exportCsv").onclick = () => {
-  const rows = csvRows(sessionTransactions());
-  downloadCsv(`屋台売上_全レジ_${currentSession.businessDate}_D${currentSession.businessDay}.csv`, rows);
-  audit("csv_export", { sessionId: currentSession.id, count: rows.length - 1 });
+  const allTransactions = Object.values(transactions);
+  if (!allTransactions.length) return;
+  const rows = csvRows(allTransactions);
+  downloadCsv(`屋台売上_全期間_${localDate(new Date())}.csv`, rows);
+  audit("csv_export_all", { count: rows.length - 1 });
 };
 
 $("openClose").onclick = () => $("closeDialog").showModal();
