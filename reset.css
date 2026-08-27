@@ -1,0 +1,22 @@
+.reset-card {
+  border: 2px solid #f2b6b6;
+}
+
+.reset-card p {
+  line-height: 1.55;
+}
+
+.reset-button {
+  width: 100%;
+  background: var(--red);
+  color: #fff;
+}
+
+.reset-button:disabled {
+  background: #b9bdc2;
+  color: #fff;
+}
+
+.reset-card .notice {
+  color: var(--green);
+}
