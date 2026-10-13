@@ -41,9 +41,9 @@
       <article class="product"><h3>フランク</h3><div class="unit">1本 100円</div><div class="qty-row"><button class="minus" data-product="frankfurter" data-delta="-1" aria-label="フランクを1本減らす">−</button><output id="frankfurterQty" class="qty">0</output><button class="plus" data-product="frankfurter" data-delta="1" aria-label="フランクを1本増やす">＋</button></div></article>
       <article class="product"><h3>焼きそば</h3><div class="unit">1食 200円</div><div class="qty-row"><button class="minus" data-product="yakisoba" data-delta="-1" aria-label="焼きそばを1食減らす">−</button><output id="yakisobaQty" class="qty">0</output><button class="plus" data-product="yakisoba" data-delta="1" aria-label="焼きそばを1食増やす">＋</button></div></article>
       <article class="product"><h3>チョコバナナ</h3><div class="unit">1本 100円</div><div class="qty-row"><button class="minus" data-product="chocolateBanana" data-delta="-1" aria-label="チョコバナナを1本減らす">−</button><output id="chocolateBananaQty" class="qty">0</output><button class="plus" data-product="chocolateBanana" data-delta="1" aria-label="チョコバナナを1本増やす">＋</button></div></article>
+      <article class="product"><h3>ドリンク</h3><div class="unit">1本 100円</div><div class="qty-row"><button class="minus" data-product="drink" data-delta="-1" aria-label="ドリンクを1本減らす">−</button><output id="drinkQty" class="qty">0</output><button class="plus" data-product="drink" data-delta="1" aria-label="ドリンクを1本増やす">＋</button></div></article>
       <article class="product"><h3>焼き菓子①</h3><div class="unit">1個 100円</div><div class="qty-row"><button class="minus" data-product="bakedSweet1" data-delta="-1" aria-label="焼き菓子1を1個減らす">−</button><output id="bakedSweet1Qty" class="qty">0</output><button class="plus" data-product="bakedSweet1" data-delta="1" aria-label="焼き菓子1を1個増やす">＋</button></div></article>
       <article class="product"><h3>焼き菓子②</h3><div class="unit">1個 150円</div><div class="qty-row"><button class="minus" data-product="bakedSweet2" data-delta="-1" aria-label="焼き菓子2を1個減らす">−</button><output id="bakedSweet2Qty" class="qty">0</output><button class="plus" data-product="bakedSweet2" data-delta="1" aria-label="焼き菓子2を1個増やす">＋</button></div></article>
-      <article class="product"><h3>ドリンク</h3><div class="unit">1本 100円</div><div class="qty-row"><button class="minus" data-product="drink" data-delta="-1" aria-label="ドリンクを1本減らす">−</button><output id="drinkQty" class="qty">0</output><button class="plus" data-product="drink" data-delta="1" aria-label="ドリンクを1本増やす">＋</button></div></article>
     </div>
     <div class="sum-box" style="margin-top:7px;display:flex;align-items:center;justify-content:space-between;padding:5px 12px"><div class="sum-label">合計金額</div><div id="total" class="sum-value">0円</div></div>
   </section>
@@ -68,9 +68,9 @@
     {key:"frankfurter",field:"frankfurterQty",price:100},
     {key:"yakisoba",field:"yakisobaQty",price:200},
     {key:"chocolateBanana",field:"chocolateBananaQty",price:100},
+    {key:"drink",field:"drinkQty",price:100},
     {key:"bakedSweet1",field:"bakedSweet1Qty",price:100},
-    {key:"bakedSweet2",field:"bakedSweet2Qty",price:150},
-    {key:"drink",field:"drinkQty",price:100}
+    {key:"bakedSweet2",field:"bakedSweet2Qty",price:150}
   ];
   const $=id=>document.getElementById(id);
   const yen=value=>`${Number(value).toLocaleString("ja-JP")}円`;
