@@ -10,9 +10,9 @@ export const PRODUCTS = Object.freeze([
   { key: "frankfurter", field: "frankfurterQty", name: "フランク", price: 100, unit: "本" },
   { key: "yakisoba", field: "yakisobaQty", name: "焼きそば", price: 200, unit: "食" },
   { key: "chocolateBanana", field: "chocolateBananaQty", name: "チョコバナナ", price: 100, unit: "本" },
+  { key: "drink", field: "drinkQty", name: "ドリンク", price: 100, unit: "本" },
   { key: "bakedSweet1", field: "bakedSweet1Qty", name: "焼き菓子①", price: 100, unit: "個" },
-  { key: "bakedSweet2", field: "bakedSweet2Qty", name: "焼き菓子②", price: 150, unit: "個" },
-  { key: "drink", field: "drinkQty", name: "ドリンク", price: 100, unit: "本" }
+  { key: "bakedSweet2", field: "bakedSweet2Qty", name: "焼き菓子②", price: 150, unit: "個" }
 ]);
 
 export const app = initializeApp(firebaseConfig);
