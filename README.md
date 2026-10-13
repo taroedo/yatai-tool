@@ -16,7 +16,8 @@ GitHub Pagesのトップページから共通アクセスコードを入力し�
 index.html                  共通ログイン・イベント選択
 register.html               旧レジURLから盆踊りレジへ移動
 admin.html                  旧管理URLから盆踊り管理へ移動
-ui-test.html                Firebaseへ送信しないUI検証ページ
+ui-test.html                盆踊りUI検証ページ
+ui-test-autumn.html         オータムフェスUI検証ページ
 database.rules.json         Firebase Realtime Databaseルール
 
 shared/
@@ -90,12 +91,13 @@ Firebaseのルールは同梱の`database.rules.json`を使用します。テス
 
 ## UI検証ページ
 
-`ui-test.html`はFirebaseを読み込まず、データをページ内変数だけで管理します。
+`ui-test.html`と`ui-test-autumn.html`はFirebaseを読み込まず、データをページ内変数だけで管理します。
 
 - 商品数量、合計、預かり金、お釣りの確認
 - 会計と直前取消の確認
 - 管理画面や別端末への送信なし
 - 再読み込みでデータ初期化
+- 盆踊り版は2商品、オータムフェス版は6商品と「+50円」に対応
 
 ## 売上CSV出力
 
