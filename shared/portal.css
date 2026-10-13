@@ -31,7 +31,7 @@ button:active,.button:active{filter:brightness(.9);transform:scale(.99)}
 .status{white-space:nowrap;border-radius:99px;padding:4px 9px;font-size:12px;font-weight:900;background:#dff5e8;color:#086c36}
 .status.preparing{background:#fff0dd;color:#884600}
 .event-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.event-card.autumn .event-actions,.event-card.test .event-actions{grid-template-columns:1fr}
+.event-card.test .event-actions{grid-template-columns:1fr}
 .button{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:9px}
 .register{background:var(--green);color:#fff}
 .admin{background:var(--blue);color:#fff}
