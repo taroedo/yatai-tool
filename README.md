@@ -16,8 +16,10 @@ GitHub Pagesのトップページから共通アクセスコードを入力し�
 index.html                  共通ログイン・イベント選択
 register.html               旧レジURLから盆踊りレジへ移動
 admin.html                  旧管理URLから盆踊り管理へ移動
-ui-test.html                盆踊りUI検証ページ
-ui-test-autumn.html         オータムフェスUI検証ページ
+ui-test.html                盆踊りUI検証①
+ui-test-compact.html        盆踊りUI検証②（ファーストビュー重視）
+ui-test-autumn.html         オータムフェスUI検証①
+ui-test-autumn-compact.html オータムフェスUI検証②（ファーストビュー重視）
 database.rules.json         Firebase Realtime Databaseルール
 
 shared/
@@ -91,7 +93,7 @@ Firebaseのルールは同梱の`database.rules.json`を使用します。テス
 
 ## UI検証ページ
 
-`ui-test.html`と`ui-test-autumn.html`はFirebaseを読み込まず、データをページ内変数だけで管理します。
+4つのUI検証ページはFirebaseを読み込まず、データをページ内変数だけで管理します。UI検証②では商品数量を最上段、レジ・担当者選択を最下段に配置し、スマートフォンの初期表示内に「会計する」まで収めることを優先しています。
 
 - 商品数量、合計、預かり金、お釣りの確認
 - 会計と直前取消の確認
