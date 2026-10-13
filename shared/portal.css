@@ -31,11 +31,12 @@ button:active,.button:active{filter:brightness(.9);transform:scale(.99)}
 .status{white-space:nowrap;border-radius:99px;padding:4px 9px;font-size:12px;font-weight:900;background:#dff5e8;color:#086c36}
 .status.preparing{background:#fff0dd;color:#884600}
 .event-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.event-card.test .event-actions{grid-template-columns:1fr}
+.event-card.test .event-actions{grid-template-columns:1fr 1fr}
 .button{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;padding:9px}
 .register{background:var(--green);color:#fff}
 .admin{background:var(--blue);color:#fff}
 .preview{background:#e8f1f9;color:#135988}
+.autumn-preview{background:#f7eadb;color:#794114}
 .preparing-link{background:#fff0dd;color:#884600}
 .note{color:var(--muted);font-size:13px;margin:14px 3px 0;line-height:1.5}
 .back{display:inline-flex;align-items:center;min-height:44px;color:var(--blue);font-weight:800;text-decoration:none;margin-bottom:10px}
