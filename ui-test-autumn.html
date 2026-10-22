@@ -19,7 +19,7 @@
       <h1>オータムフェス UI検証</h1>
       <div class="badges">
         <span id="registerBadge" class="badge">レジ1</span>
-        <span id="cashierBadge" class="badge">会計担当1</span>
+        <span id="cashierBadge" class="badge">担当者未入力</span>
         <span class="badge test">UI検証用</span>
         <span class="badge local">ローカル動作</span>
       </div>
@@ -30,7 +30,7 @@
   <section class="card form">
     <div class="two-col">
       <label>レジ<select id="registerId"><option value="R1">レジ1</option><option value="R2">レジ2</option></select></label>
-      <label>担当者<select id="cashierId"><option value="C1">会計担当1</option><option value="C2">会計担当2</option></select></label>
+      <label>担当者名<input id="cashierName" type="text" autocomplete="name" maxlength="40" placeholder="例：江戸 太郎" required></label>
     </div>
     <p class="form-note">このページの操作内容はFirebase、管理画面、他の端末へ送信されません。再読み込みすると初期化されます。</p>
   </section>
@@ -97,7 +97,7 @@
     $("total").textContent=yen(amount);
     $("change").textContent=shortage?`不足 ${yen(shortage)}`:yen(change);
     $("change").classList.toggle("short",shortage>0);
-    $("checkout").disabled=!amount||shortage>0;
+    $("checkout").disabled=!$("cashierName").value.trim()||!amount||shortage>0;
     $("undoMoney").disabled=!current.moneyStack.length;
     $("clearMoney").disabled=!current.received;
     $("exactMoney").disabled=!amount;
@@ -105,20 +105,21 @@
     $("registerSales").textContent=yen(salesAmount);
     $("cancelLast").disabled=!active.length;
     $("registerBadge").textContent=selectedText("registerId");
-    $("cashierBadge").textContent=selectedText("cashierId");
+    $("cashierBadge").textContent=$("cashierName").value.trim()||"担当者未入力";
   }
 
   document.querySelectorAll("[data-product]").forEach(button=>button.addEventListener("click",()=>{const key=button.dataset.product;current.quantities[key]=Math.max(0,current.quantities[key]+Number(button.dataset.delta));render()}));
   document.querySelectorAll("[data-money]").forEach(button=>button.addEventListener("click",()=>{const value=Number(button.dataset.money);current.received+=value;current.moneyStack.push(value);render()}));
-  [$("registerId"),$("cashierId")].forEach(select=>select.addEventListener("change",render));
+  $("registerId").addEventListener("change",render);
+  $("cashierName").addEventListener("input",render);
   $("undoMoney").addEventListener("click",()=>{current.received=Math.max(0,current.received-(current.moneyStack.pop()||0));render()});
   $("clearMoney").addEventListener("click",()=>{current.received=0;current.moneyStack=[];render()});
   $("exactMoney").addEventListener("click",()=>{current.received=total();current.moneyStack=[];render()});
   $("checkout").addEventListener("click",()=>{
     const amount=total();
-    if(!amount||current.received<amount)return;
+    if(!$("cashierName").value.trim()||!amount||current.received<amount)return;
     sequence+=1;
-    const sale={receiptNo:`AUTUMN-TEST-${$("registerId").value}-${String(sequence).padStart(4,"0")}`,registerId:$("registerId").value,cashierId:$("cashierId").value,...quantityFields(current),total:amount,received:current.received,change:current.received-amount,cancelled:false};
+    const sale={receiptNo:`AUTUMN-TEST-${$("registerId").value}-${String(sequence).padStart(4,"0")}`,registerId:$("registerId").value,cashierName:$("cashierName").value.trim(),...quantityFields(current),total:amount,received:current.received,change:current.received-amount,cancelled:false};
     sales.push(sale);
     current={quantities:emptyQuantities(),received:0,moneyStack:[]};
     $("notice").textContent=`${sale.receiptNo} 会計完了`;
