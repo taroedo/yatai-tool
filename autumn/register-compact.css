@@ -1,0 +1,40 @@
+/* Production register adaptation of UI test ②: keep the checkout flow compact. */
+:root{--orange:#b66a24;--green:#6d7f2b;--blue:#8b5a2b}
+html{font-size:16px}
+body{padding:max(4px,env(safe-area-inset-top)) max(5px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(5px,env(safe-area-inset-left))}
+button,input,select{font-size:14px}
+.app{max-width:600px}
+.top{gap:5px;margin:0 2px 4px}
+.top h1{font-size:18px;line-height:1.1}
+.top-link{min-height:34px;padding:3px 9px;font-size:13px}
+.badges{gap:3px;margin-top:2px}
+.badge{padding:2px 6px;font-size:10px}
+.badge.online{background:#dff5e8;color:#086c36}
+.badge.offline{background:#fde3e3;color:#a32020}
+.card{padding:6px;margin-bottom:5px;border-radius:10px}
+.card h2{font-size:14px;line-height:1.1;margin:0 0 4px}
+.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+.product{padding:3px;text-align:center}
+.product h3{font-size:14px;line-height:1.05;white-space:nowrap}
+.product .unit{font-size:10px;line-height:1.1;margin:1px 0 2px}
+.product .qty-row{grid-template-columns:34px minmax(28px,1fr) 46px;gap:3px}
+.product .qty{font-size:24px;line-height:1}
+.product .minus{min-height:36px;font-size:18px}
+.product .plus{min-height:42px;font-size:24px;background:var(--autumn)}
+.sum-box{padding:5px 8px}
+.sum-label{font-size:11px}
+.sum-value,#total,#received,#change{font-size:26px;line-height:1.1;font-weight:900;font-variant-numeric:tabular-nums}
+.received{margin:0 0 3px;padding-right:8px;text-align:right;font-size:26px;line-height:1.1}
+.money{grid-template-columns:repeat(3,1fr);gap:4px;margin-top:3px}
+.money button{min-height:39px;padding:3px 2px;white-space:nowrap}
+.actions{grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px}
+.actions button{min-height:38px;padding:3px 2px;font-size:13px}
+.checkout{min-height:48px;margin-top:5px;font-size:20px}
+.notice{min-height:12px;margin-top:0;font-size:11px;line-height:12px}
+.summary,.two-col{gap:5px}
+.form{margin-bottom:0}
+.form label{font-size:12px;font-weight:700}
+.form select,.form input{min-height:40px;padding:5px;margin-top:2px}
+@media(max-height:740px){.top h1{font-size:17px}.card{padding:5px;margin-bottom:4px}.product{padding:2px}.product .qty-row{grid-template-columns:32px minmax(26px,1fr) 44px}.product .minus{min-height:34px}.product .plus{min-height:40px}.money button{min-height:37px}.actions button{min-height:36px}.checkout{min-height:45px}.sum-box{padding-top:4px;padding-bottom:4px}.sum-value,#total,#received,#change,.received{font-size:24px}}
+@media(min-width:720px){.app{max-width:960px}.top h1{font-size:24px}}
+@media(max-width:370px){.product h3{font-size:13px}.product .qty-row{grid-template-columns:32px minmax(24px,1fr) 42px}.money button{font-size:13px}}

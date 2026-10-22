@@ -1,4 +1,4 @@
-import { db, EVENT_ID, pathFor, PRODUCTS, yen, uuid } from "./common.js?v=2";
+import { db, EVENT_ID, pathFor, PRODUCTS, yen, uuid } from "./common.js?v=3";
 import { ref, onValue, set, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
 const $ = id => document.getElementById(id);
@@ -15,9 +15,11 @@ let transactions = {};
 let connected = false;
 let cancelCandidate = null;
 
-const settings = JSON.parse(localStorage.getItem(SETTINGS) || '{"registerId":"R1","cashierId":"C1"}');
+const settings = JSON.parse(localStorage.getItem(SETTINGS) || '{"registerId":"R1","cashierId":"C1","cashierName":""}');
 $("registerId").value = settings.registerId;
-$("cashierId").value = settings.cashierId;
+$("cashierName").value = settings.cashierName || "";
+
+function cashierName() { return $("cashierName").value.trim(); }
 
 function getOutbox() {
   try { return JSON.parse(localStorage.getItem(OUTBOX) || "[]"); } catch { return []; }
@@ -29,7 +31,7 @@ function saveOutbox(value) {
 }
 
 function saveSettings() {
-  localStorage.setItem(SETTINGS, JSON.stringify({ registerId: $("registerId").value, cashierId: $("cashierId").value }));
+  localStorage.setItem(SETTINGS, JSON.stringify({ registerId: $("registerId").value, cashierName: cashierName() }));
   render();
 }
 
@@ -67,10 +69,10 @@ function render() {
   $("total").textContent = yen(amount);
   $("change").textContent = short ? `不足 ${yen(short)}` : yen(change);
   $("change").classList.toggle("short", short > 0);
-  $("checkout").disabled = !activeSession || activeSession.status !== "open" || !amount || short > 0;
+  $("checkout").disabled = !cashierName() || !activeSession || activeSession.status !== "open" || !amount || short > 0;
   $("clearMoney").disabled = !current.received;
   $("registerBadge").textContent = $("registerId").selectedOptions[0].text;
-  $("cashierBadge").textContent = $("cashierId").selectedOptions[0].text;
+  $("cashierBadge").textContent = cashierName() || "担当者未入力";
   $("sessionBadge").textContent = activeSession ? `${activeSession.businessDay}日目 ${activeSession.status === "open" ? "営業中" : "終了"}` : "営業前";
   $("networkBadge").textContent = connected ? "オンライン" : "オフライン";
   $("networkBadge").className = `badge ${connected ? "online" : "offline"}`;
@@ -111,23 +113,26 @@ async function flushOutbox() {
 
 function audit(action, detail = {}) {
   const id = uuid();
-  set(ref(db, pathFor(`audit/${id}`)), { id, action, detail, deviceId, registerId: $("registerId").value, cashierId: $("cashierId").value, serverTime: serverTimestamp() }).catch(console.error);
+  set(ref(db, pathFor(`audit/${id}`)), { id, action, detail, deviceId, registerId: $("registerId").value, cashierName: cashierName(), serverTime: serverTimestamp() }).catch(console.error);
 }
 
 function updatePresence() {
   if (!connected) return;
   const presenceRef = ref(db, pathFor(`presence/${deviceId}`));
-  set(presenceRef, { online: true, registerId: $("registerId").value, cashierId: $("cashierId").value, lastSeen: serverTimestamp() });
-  onDisconnect(presenceRef).set({ online: false, registerId: $("registerId").value, cashierId: $("cashierId").value, lastSeen: serverTimestamp() });
+  set(presenceRef, { online: true, registerId: $("registerId").value, cashierName: cashierName(), lastSeen: serverTimestamp() });
+  onDisconnect(presenceRef).set({ online: false, registerId: $("registerId").value, cashierName: cashierName(), lastSeen: serverTimestamp() });
 }
 
-[$("registerId"), $("cashierId")].forEach(element => {
-  element.onchange = () => {
-    saveSettings();
-    updatePresence();
-    audit("operator_change", { registerId: $("registerId").value, cashierId: $("cashierId").value });
-  };
-});
+$("registerId").onchange = () => {
+  saveSettings();
+  updatePresence();
+  audit("operator_change", { registerId: $("registerId").value, cashierName: cashierName() });
+};
+$("cashierName").onchange = () => {
+  saveSettings();
+  updatePresence();
+  audit("operator_change", { registerId: $("registerId").value, cashierName: cashierName() });
+};
 
 document.querySelectorAll("[data-product]").forEach(button => {
   button.onclick = () => {
@@ -152,11 +157,11 @@ $("exactMoney").onclick = () => { current.received = total(); current.moneyStack
 
 $("checkout").onclick = () => {
   const amount = total();
-  if (!activeSession || !amount || current.received < amount) return;
+  if (!cashierName() || !activeSession || !amount || current.received < amount) return;
   const record = {
     id: uuid(), type: "sale", receiptNo: nextReceipt(), sessionId: activeSession.id,
     businessDay: activeSession.businessDay, businessDate: activeSession.businessDate,
-    registerId: $("registerId").value, cashierId: $("cashierId").value,
+    registerId: $("registerId").value, cashierId: "C1", cashierName: cashierName(),
     deviceId, clientTime: new Date().toISOString(), ...productFields(current),
     total: amount, received: current.received, change: current.received - amount
   };
@@ -181,7 +186,7 @@ $("confirmCancel").onclick = event => {
     id: uuid(), type: "cancel", receiptNo: nextReceipt(), originalTransactionId: cancelCandidate.id,
     originalReceiptNo: cancelCandidate.receiptNo, reason: $("cancelReason").value, note: $("cancelNote").value.trim(),
     sessionId: activeSession.id, businessDay: activeSession.businessDay, businessDate: activeSession.businessDate,
-    registerId: $("registerId").value, cashierId: $("cashierId").value,
+    registerId: $("registerId").value, cashierId: "C1", cashierName: cashierName(),
     deviceId, clientTime: new Date().toISOString(), ...productFields(cancelCandidate),
     total: cancelCandidate.total, received: 0, change: 0
   };
