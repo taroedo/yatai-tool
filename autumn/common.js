@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
-import { firebaseConfig, eventId, adminPin } from "./firebase-config.js";
+import { firebaseConfig, eventId, adminPin } from "./firebase-config.js?v=2";
 
 if (firebaseConfig.apiKey.startsWith("YOUR_")) {
   console.warn("firebase-config.js の設定値を変更してください。");

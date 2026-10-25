@@ -1,4 +1,4 @@
-import { db, ADMIN_PIN, EVENT_ID, PRODUCTS, pathFor, yen, localDate, downloadCsv, uuid } from "./common.js?v=2";
+import { db, ADMIN_PIN, EVENT_ID, PRODUCTS, pathFor, yen, localDate, downloadCsv, uuid } from "./common.js?v=4";
 import { ref, onValue, get, set, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
 const $ = id => document.getElementById(id);
@@ -26,6 +26,14 @@ function activeSales() {
 
 function onlineRegisters() {
   return Object.values(presence).filter(item => item.online);
+}
+
+function cashierLabel(item) {
+  return item.cashierName || (item.cashierId === "C2" ? "会計担当2" : "会計担当1");
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 }
 
 function resetBlockedReason() {
@@ -56,8 +64,15 @@ function render() {
   PRODUCTS.forEach(product => { $(`${product.key}Count`).textContent = `${sum(sales, product.field)}${product.unit}`; });
   $("r1Sales").textContent = yen(sum(register1, "total"));
   $("r2Sales").textContent = yen(sum(register2, "total"));
-  $("c1Count").textContent = `${sales.filter(item => item.cashierId === "C1").length}件`;
-  $("c2Count").textContent = `${sales.filter(item => item.cashierId === "C2").length}件`;
+  const cashierCounts = new Map();
+  sales.forEach(item => {
+    const name = cashierLabel(item);
+    cashierCounts.set(name, (cashierCounts.get(name) || 0) + 1);
+  });
+  $("cashierMetrics").innerHTML = [...cashierCounts.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], "ja"))
+    .map(([name, count]) => `<div class="metric"><span>${escapeHtml(name)}</span><strong>${count}件</strong></div>`)
+    .join("");
 
   const online = onlineRegisters();
   $("r1Status").textContent = `レジ1 ${online.some(item => item.registerId === "R1") ? "接続中" : "未接続"}`;
@@ -65,7 +80,7 @@ function render() {
 
   $("transactionsBody").innerHTML = [...list]
     .sort((a, b) => (b.clientTime || "").localeCompare(a.clientTime || ""))
-    .map(item => `<tr><td>${new Date(item.clientTime).toLocaleTimeString("ja-JP")}</td><td>${item.receiptNo || "-"}</td><td>${item.registerId}</td><td>${item.cashierId === "C1" ? "担当1" : "担当2"}</td><td>${item.type === "sale" ? "会計" : "取消"}</td>${PRODUCTS.map(product => `<td>${Number(item[product.field] || 0)}</td>`).join("")}<td>${yen(item.total)}</td><td>${item.reason || ""}</td></tr>`)
+    .map(item => `<tr><td>${new Date(item.clientTime).toLocaleTimeString("ja-JP")}</td><td>${escapeHtml(item.receiptNo || "-")}</td><td>${escapeHtml(item.registerId)}</td><td>${escapeHtml(cashierLabel(item))}</td><td>${item.type === "sale" ? "会計" : "取消"}</td>${PRODUCTS.map(product => `<td>${Number(item[product.field] || 0)}</td>`).join("")}<td>${yen(item.total)}</td><td>${escapeHtml(item.reason || "")}</td></tr>`)
     .join("");
 
   const blocked = resetBlockedReason();
@@ -95,7 +110,7 @@ function csvRows(list) {
       item.businessDate, item.receiptNo,
       item.serverTime ? new Date(item.serverTime).toLocaleString("ja-JP") : "未同期",
       new Date(item.clientTime).toLocaleString("ja-JP"), item.registerId,
-      item.cashierId === "C1" ? "会計担当1" : "会計担当2",
+      cashierLabel(item),
       item.type === "sale" ? "会計" : "取消", item.originalReceiptNo || "",
       ...PRODUCTS.map(product => Number(item[product.field] || 0)),
       item.total, item.received, item.change, item.reason || "", item.note || ""

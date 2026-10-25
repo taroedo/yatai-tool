@@ -1,4 +1,4 @@
-import { db, EVENT_ID, pathFor, PRODUCTS, yen, uuid } from "./common.js?v=3";
+import { db, EVENT_ID, pathFor, PRODUCTS, yen, uuid } from "./common.js?v=4";
 import { ref, onValue, set, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
 const $ = id => document.getElementById(id);
